@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小說目錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffdf8;
+  --ink: #2b2620;
+  --muted: #857a6b;
+  --line: #e6dccb;
+  --accent: #a2482f;
+  --accent-ink: #fffaf3;
+  --accent-soft: #f3e1d6;
+  --read: #b3a895;
+  --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 8px 24px rgba(60, 40, 20, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1916;
+    --surface: #24211d;
+    --ink: #ece4d6;
+    --muted: #a29785;
+    --line: #38332c;
+    --accent: #e08b6a;
+    --accent-ink: #1b1916;
+    --accent-soft: #3a2a22;
+    --read: #6f675b;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1916;
+  --surface: #24211d;
+  --ink: #ece4d6;
+  --muted: #a29785;
+  --line: #38332c;
+  --accent: #e08b6a;
+  --accent-ink: #1b1916;
+  --accent-soft: #3a2a22;
+  --read: #6f675b;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  line-height: 1.6;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 16px 80px; }
+.serif { font-family: "Noto Serif TC", "PMingLiU", serif; }
+a { color: inherit; }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.tabs button {
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  padding: 6px 14px; border-radius: 999px; font: inherit; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+header h1 { font-size: clamp(28px, 6vw, 40px); margin: 0 0 6px; letter-spacing: .04em; }
+.meta { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.meta a { color: var(--muted); }
+.notice {
+  margin-top: 14px; font-size: 14px; color: var(--muted);
+  border-left: 3px solid var(--accent); padding: 2px 0 2px 10px;
+}
+
+.progress { margin: 24px 0 8px; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.progress small { color: var(--muted); font-size: 13px; }
+
+.resume {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; margin: 16px 0 28px; box-shadow: var(--shadow);
+}
+.resume .label { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+.resume .next-title { font-size: 22px; margin: 0 0 16px; }
+.resume .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  padding: 10px 18px; border-radius: 10px; font-weight: 500; font-size: 15px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-family: inherit;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:hover { filter: brightness(1.05); }
+
+.toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.toolbar input {
+  flex: 1 1 200px; min-width: 0; padding: 9px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit;
+}
+.toolbar .btn { padding: 8px 12px; font-size: 14px; }
+
+ol.chapters { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.chapters li { display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+.chapters li.current { background: var(--accent-soft); }
+.chapters a.ch {
+  flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 14px;
+  padding: 13px 4px 13px 10px; text-decoration: none;
+}
+.chapters .no { width: 2.6em; flex: none; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.chapters .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
+.chapters .d { color: var(--muted); font-size: 12px; flex: none; }
+.chapters li.read .t { color: var(--read); }
+.chapters a.ch:hover .t { color: var(--accent); }
+.chapters .tick {
+  flex: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+  color: var(--line); font-size: 18px; border-radius: 8px;
+}
+.chapters li.read .tick { color: var(--read); }
+.chapters .tick:hover { color: var(--accent); }
+.tag { font-size: 11px; color: var(--accent-ink); background: var(--accent); padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+@media (max-width: 520px) {
+  .chapters .d { display: none; }
+  .wrap { padding-top: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="tabs" id="tabs" hidden></nav>
+  <header>
+    <h1 class="serif" id="name"></h1>
+    <div class="meta" id="meta"></div>
+    <div class="notice" id="notice" hidden></div>
+  </header>
+
+  <div class="progress">
+    <div class="bar"><i id="bar"></i></div>
+    <small id="progressText"></small>
+  </div>
+
+  <section class="resume" id="resume"></section>
+
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="搜尋章節名稱或章數…">
+    <button class="btn" id="order"></button>
+    <button class="btn" id="jump">跳到進度</button>
+  </div>
+  <ol class="chapters" id="list"></ol>
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = {"updated": "2026-10-26 15:19", "novels": [{"name": "離島‧離人‧風箏", "url": "https://lance530125.pixnet.net/blog/categories/8002812455", "notice": "離島‧離人‧風箏 91 ComingSoon......", "posts": [{"id": "8191818590", "title": "離島‧離人‧風箏 01：傻瓜", "date": "2014-12-24 21:18", "url": "https://lance530125.pixnet.net/blog/posts/8191818590", "no": 1}, {"id": "8191927505", "title": "離島‧離人‧風箏 02：為什麼？", "date": "2014-12-28 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8191927505", "no": 2}, {"id": "8192028242", "title": "離島‧離人‧風箏 03：我在乎的", "date": "2014-12-30 23:09", "url": "https://lance530125.pixnet.net/blog/posts/8192028242", "no": 3}, {"id": "8192183567", "title": "離島‧離人‧風箏 04：妳知道嗎？", "date": "2015-01-04 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8192183567", "no": 4}, {"id": "8192227952", "title": "離島‧離人‧風箏 05：妳已經做的很好了……", "date": "2015-01-05 18:09", "url": "https://lance530125.pixnet.net/blog/posts/8192227952", "no": 5}, {"id": "8192411399", "title": "離島‧離人‧風箏 06：不要同情我！", "date": "2015-01-09 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8192411399", "no": 6}, {"id": "8192554373", "title": "離島‧離人‧風箏 07：原則", "date": "2015-01-12 18:18", "url": "https://lance530125.pixnet.net/blog/posts/8192554373", "no": 7}, {"id": "8192728451", "title": "離島‧離人‧風箏 08：危險的人", "date": "2015-01-16 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8192728451", "no": 8}, {"id": "8192859251", "title": "離島‧離人‧風箏 09：溫暖......", "date": "2015-01-19 13:14", "url": "https://lance530125.pixnet.net/blog/posts/8192859251", "no": 9}, {"id": "8193038360", "title": "離島‧離人‧風箏 10：好傻對吧？", "date": "2015-01-23 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8193038360", "no": 10}, {"id": "8193235565", "title": "離島‧離人‧風箏 11：第一個", "date": "2015-01-27 18:01", "url": "https://lance530125.pixnet.net/blog/posts/8193235565", "no": 11}, {"id": "8193251426", "title": "離島‧離人‧風箏 12：髮", "date": "2015-01-28 03:04", "url": "https://lance530125.pixnet.net/blog/posts/8193251426", "no": 12}, {"id": "8193426221", "title": "離島‧離人‧風箏 13：老朋友", "date": "2015-02-01 04:18", "url": "https://lance530125.pixnet.net/blog/posts/8193426221", "no": 13}, {"id": "8193717566", "title": "離島‧離人‧風箏 14：魔力", "date": "2015-02-07 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8193717566", "no": 14}, {"id": "8193777164", "title": "離島‧離人‧風箏 15：慢半拍", "date": "2015-02-08 16:59", "url": "https://lance530125.pixnet.net/blog/posts/8193777164", "no": 15}, {"id": "8194014017", "title": "離島‧離人‧風箏 16：不是這樣的……", "date": "2015-02-14 01:41", "url": "https://lance530125.pixnet.net/blog/posts/8194014017", "no": 16}, {"id": "8194049963", "title": "離島‧離人‧風箏 17：腳步", "date": "2015-02-15 03:06", "url": "https://lance530125.pixnet.net/blog/posts/8194049963", "no": 17}, {"id": "8194181651", "title": "離島‧離人‧風箏 18：吃醋了", "date": "2015-02-18 23:00", "url": "https://lance530125.pixnet.net/blog/posts/8194181651", "no": 18}, {"id": "8194335566", "title": "離島‧離人‧風箏 19：這絕對是誤會……", "date": "2015-02-23 21:20", "url": "https://lance530125.pixnet.net/blog/posts/8194335566", "no": 19}, {"id": "8194897016", "title": "離島‧離人‧風箏 20：不捨", "date": "2015-03-08 22:12", "url": "https://lance530125.pixnet.net/blog/posts/8194897016", "no": 20}, {"id": "8194942589", "title": "離島‧離人‧風箏 21：各司其職的保護……", "date": "2015-03-10 00:39", "url": "https://lance530125.pixnet.net/blog/posts/8194942589", "no": 21}, {"id": "8195145662", "title": "離島‧離人‧風箏 22：保護色", "date": "2015-03-15 02:25", "url": "https://lance530125.pixnet.net/blog/posts/8195145662", "no": 22}, {"id": "8195522480", "title": "離島‧離人‧風箏 23：如果......", "date": "2015-03-23 00:16", "url": "https://lance530125.pixnet.net/blog/posts/8195522480", "no": 23}, {"id": "8195934740", "title": "離島‧離人‧風箏 24：我對不起我", "date": "2015-03-29 11:39", "url": "https://lance530125.pixnet.net/blog/posts/8195934740", "no": 24}, {"id": "8196174293", "title": "離島‧離人‧風箏 25：冷卻", "date": "2015-04-04 13:30", "url": "https://lance530125.pixnet.net/blog/posts/8196174293", "no": 25}, {"id": "8196380405", "title": "離島‧離人‧風箏 26：家", "date": "2015-04-09 21:09", "url": "https://lance530125.pixnet.net/blog/posts/8196380405", "no": 26}, {"id": "8196728630", "title": "離島‧離人‧風箏 27：晨光", "date": "2015-04-17 09:38", "url": "https://lance530125.pixnet.net/blog/posts/8196728630", "no": 27}, {"id": "8196778535", "title": "離島‧離人‧風箏 28：很差勁", "date": "2015-04-18 16:12", "url": "https://lance530125.pixnet.net/blog/posts/8196778535", "no": 28}, {"id": "8197043744", "title": "離島‧離人‧風箏 29：失序", "date": "2015-04-24 23:33", "url": "https://lance530125.pixnet.net/blog/posts/8197043744", "no": 29}, {"id": "8197294898", "title": "離島‧離人‧風箏 30：사랑그한마디", "date": "2015-04-30 20:00", "url": "https://lance530125.pixnet.net/blog/posts/8197294898", "no": 30}, {"id": "8197401464", "title": "離島‧離人‧風箏 31：你在哪？", "date": "2015-05-03 00:46", "url": "https://lance530125.pixnet.net/blog/posts/8197401464", "no": 31}, {"id": "8198104139", "title": "離島‧離人‧風箏 32：Oliver的感受", "date": "2015-05-08 14:00", "url": "https://lance530125.pixnet.net/blog/posts/8198104139", "no": 32}, {"id": "8198356154", "title": "離島‧離人‧風箏 33：不願將就", "date": "2015-05-14 14:04", "url": "https://lance530125.pixnet.net/blog/posts/8198356154", "no": 33}, {"id": "8198996492", "title": "離島‧離人‧風箏 34：戀人的距離", "date": "2015-05-28 20:23", "url": "https://lance530125.pixnet.net/blog/posts/8198996492", "no": 34}, {"id": "8199434297", "title": "離島‧離人‧風箏 35：請多多指教", "date": "2015-06-08 12:00", "url": "https://lance530125.pixnet.net/blog/posts/8199434297", "no": 35}, {"id": "8201867361", "title": "離島‧離人‧風箏 36：雨天", "date": "2015-08-05 04:18", "url": "https://lance530125.pixnet.net/blog/posts/8201867361", "no": 36}, {"id": "8202056541", "title": "離島‧離人‧風箏 37：幼稚", "date": "2015-08-10 21:41", "url": "https://lance530125.pixnet.net/blog/posts/8202056541", "no": 37}, {"id": "8202594396", "title": "離島‧離人‧風箏 38：沒有我的以前", "date": "2015-08-18 18:22", "url": "https://lance530125.pixnet.net/blog/posts/8202594396", "no": 38}, {"id": "8203038741", "title": "離島‧離人‧風箏 39：宣示", "date": "2015-08-27 12:54", "url": "https://lance530125.pixnet.net/blog/posts/8203038741", "no": 39}, {"id": "8203411497", "title": "離島‧離人‧風箏 40：someday...", "date": "2015-09-05 00:52", "url": "https://lance530125.pixnet.net/blog/posts/8203411497", "no": 40}, {"id": "8203748733", "title": "離島‧離人‧風箏 41：不自信", "date": "2015-09-11 23:12", "url": "https://lance530125.pixnet.net/blog/posts/8203748733", "no": 41}, {"id": "8204473476", "title": "離島‧離人‧風箏 42：Oliver小姐", "date": "2015-10-01 22:30", "url": "https://lance530125.pixnet.net/blog/posts/8204473476", "no": 42}, {"id": "8205482796", "title": "離島‧離人‧風箏 43：改變", "date": "2015-10-26 09:47", "url": "https://lance530125.pixnet.net/blog/posts/8205482796", "no": 43}, {"id": "8205646365", "title": "離島‧離人‧風箏 44：不在天平上的起跑點", "date": "2015-10-31 02:49", "url": "https://lance530125.pixnet.net/blog/posts/8205646365", "no": 44}, {"id": "8205704298", "title": "離島‧離人‧風箏 45：Complete……", "date": "2015-11-02 00:08", "url": "https://lance530125.pixnet.net/blog/posts/8205704298", "no": 45}, {"id": "8206606362", "title": "離島‧離人‧風箏 46： Birthday Present", "date": "2015-11-28 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8206606362", "no": 46}, {"id": "8207214756", "title": "離島‧離人‧風箏 47： 仰望", "date": "2015-12-21 04:18", "url": "https://lance530125.pixnet.net/blog/posts/8207214756", "no": 47}, {"id": "8207763330", "title": "離島‧離人‧風箏 48： 現實是……", "date": "2016-01-12 17:32", "url": "https://lance530125.pixnet.net/blog/posts/8207763330", "no": 48}, {"id": "8208483246", "title": "離島‧離人‧風箏 49：擁抱", "date": "2016-02-07 12:24", "url": "https://lance530125.pixnet.net/blog/posts/8208483246", "no": 49}, {"id": "8208994032", "title": "離島‧離人‧風箏 50：浮木", "date": "2016-02-29 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8208994032", "no": 50}, {"id": "8209325010", "title": "離島‧離人‧風箏 51：金泰妍這個人……", "date": "2016-03-09 04:18", "url": "https://lance530125.pixnet.net/blog/posts/8209325010", "no": 51}, {"id": "8209650204", "title": "離島‧離人‧風箏 52：出遠門", "date": "2016-03-18 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8209650204", "no": 52}, {"id": "8209948473", "title": "離島‧離人‧風箏 53：寂寞的換算", "date": "2016-03-30 03:30", "url": "https://lance530125.pixnet.net/blog/posts/8209948473", "no": 53}, {"id": "8213346294", "title": "離島‧離人‧風箏 54：故人", "date": "2016-04-18 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8213346294", "no": 54}, {"id": "8214377911", "title": "離島‧離人‧風箏 55：失聯", "date": "2016-04-22 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8214377911", "no": 55}, {"id": "8215760667", "title": "離島‧離人‧風箏 56：為了妳……", "date": "2016-04-29 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8215760667", "no": 56}, {"id": "8218092525", "title": "離島‧離人‧風箏 57：黑色眼淚", "date": "2016-05-20 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8218092525", "no": 57}, {"id": "8218257407", "title": "離島‧離人‧風箏 58：純粹", "date": "2016-05-26 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8218257407", "no": 58}, {"id": "8218285835", "title": "離島‧離人‧風箏 59：我想說的是……", "date": "2016-05-29 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8218285835", "no": 59}, {"id": "8218518593", "title": "離島‧離人‧風箏 60：考驗", "date": "2016-06-08 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8218518593", "no": 60}, {"id": "8218764031", "title": "離島‧離人‧風箏 61：微加幸福", "date": "2016-06-13 23:05", "url": "https://lance530125.pixnet.net/blog/posts/8218764031", "no": 61}, {"id": "8219164389", "title": "離島‧離人‧風箏 62：簡單愛", "date": "2016-07-03 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8219164389", "no": 62}, {"id": "8219432121", "title": "離島‧離人‧風箏 63：絕情的溫柔", "date": "2016-07-23 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8219432121", "no": 63}, {"id": "8219483835", "title": "離島‧離人‧風箏 64：執手偕老", "date": "2016-07-27 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8219483835", "no": 64}, {"id": "8219612085", "title": "離島‧離人‧風箏 65：She", "date": "2016-08-05 00:00", "url": "https://lance530125.pixnet.net/blog/posts/8219612085", "no": 65}, {"id": "8219852197", "title": "離島‧離人‧風箏 66：訪客", "date": "2016-08-15 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8219852197", "no": 66}, {"id": "8220134553", "title": "離島‧離人‧風箏 67：倔強", "date": "2016-08-28 23:00", "url": "https://lance530125.pixnet.net/blog/posts/8220134553", "no": 67}, {"id": "8220300181", "title": "離島‧離人‧風箏 68：心之設防", "date": "2016-09-08 22:37", "url": "https://lance530125.pixnet.net/blog/posts/8220300181", "no": 68}, {"id": "8220424579", "title": "離島‧離人‧風箏 69：陪我", "date": "2016-09-20 21:30", "url": "https://lance530125.pixnet.net/blog/posts/8220424579", "no": 69}, {"id": "8220533529", "title": "離島‧離人‧風箏 70：如妳所願", "date": "2016-09-30 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8220533529", "no": 70}, {"id": "8220756585", "title": "離島‧離人‧風箏 71：Gravity", "date": "2016-10-21 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8220756585", "no": 71}, {"id": "8220810693", "title": "離島‧離人‧風箏 72：晚安", "date": "2016-10-27 16:18", "url": "https://lance530125.pixnet.net/blog/posts/8220810693", "no": 72}, {"id": "8220863481", "title": "離島‧離人‧風箏 73：無法言語的心", "date": "2016-11-02 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8220863481", "no": 73}, {"id": "8220932525", "title": "離島‧離人‧風箏 74：愛妳的原因", "date": "2016-11-11 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8220932525", "no": 74}, {"id": "8220984199", "title": "離島‧離人‧風箏 75：暴風雨(1)", "date": "2016-11-17 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8220984199", "no": 75}, {"id": "8221044801", "title": "離島‧離人‧風箏 76：暴風雨(2)", "date": "2016-11-24 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8221044801", "no": 76}, {"id": "8221108169", "title": "離島‧離人‧風箏 77：暴風雨(3)", "date": "2016-12-02 23:11", "url": "https://lance530125.pixnet.net/blog/posts/8221108169", "no": 77}, {"id": "8221192709", "title": "離島‧離人‧風箏 78：離島", "date": "2016-12-10 23:11", "url": "https://lance530125.pixnet.net/blog/posts/8221192709", "no": 78}, {"id": "8221310083", "title": "離島‧離人‧風箏 79：離人", "date": "2016-12-24 03:09", "url": "https://lance530125.pixnet.net/blog/posts/8221310083", "no": 79}, {"id": "8222256069", "title": "離島‧離人‧風箏 80：你好不好？", "date": "2017-04-18 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8222256069", "no": 80}, {"id": "8222279177", "title": "離島‧離人‧風箏 81：很久很久以前", "date": "2017-04-21 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8222279177", "no": 81}, {"id": "8222662301", "title": "離島‧離人‧風箏 82：兩個世界的重逢", "date": "2017-06-08 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8222662301", "no": 82}, {"id": "8222691689", "title": "離島‧離人‧風箏 83：保存期限", "date": "2017-06-10 22:45", "url": "https://lance530125.pixnet.net/blog/posts/8222691689", "no": 83}, {"id": "8222873337", "title": "離島‧離人‧風箏 84：歸期", "date": "2017-06-21 08:09", "url": "https://lance530125.pixnet.net/blog/posts/8222873337", "no": 84}, {"id": "8222911770", "title": "離島‧離人‧風箏 85：五年·仨人", "date": "2017-06-26 11:11", "url": "https://lance530125.pixnet.net/blog/posts/8222911770", "no": 85}, {"id": "8222939121", "title": "離島‧離人‧風箏 86：最熟悉的陌生人", "date": "2017-06-28 15:09", "url": "https://lance530125.pixnet.net/blog/posts/8222939121", "no": 86}, {"id": "8223117627", "title": "離島‧離人‧風箏 87：解藥", "date": "2017-07-14 01:30", "url": "https://lance530125.pixnet.net/blog/posts/8223117627", "no": 87}, {"id": "8223191115", "title": "離島‧離人‧風箏 88：桎梏", "date": "2017-07-20 23:11", "url": "https://lance530125.pixnet.net/blog/posts/8223191115", "no": 88}, {"id": "8223247266", "title": "離島‧離人‧風箏 89：遲來的報復", "date": "2017-07-27 23:11", "url": "https://lance530125.pixnet.net/blog/posts/8223247266", "no": 89}, {"id": "8223334461", "title": "離島‧離人‧風箏 90：兩人的過往", "date": "2017-08-05 21:18", "url": "https://lance530125.pixnet.net/blog/posts/8223334461", "no": 90}]}]};
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+const $ = id => document.getElementById(id);
+let novelIdx = Math.min(store.get("novel", 0), DATA.novels.length - 1);
+let newestFirst = store.get("newestFirst", false);
+let state;
+
+function key() { return "progress:" + DATA.novels[novelIdx].url; }
+function loadState() { state = store.get(key(), { read: [], last: null }); }
+function saveState() { store.set(key(), state); }
+
+function chapterLabel(p) {
+  // "離島‧離人‧風箏 90：兩人的過往" → "兩人的過往"
+  const m = p.title.match(/\d+\s*[：:]\s*(.+)$/);
+  return m ? m[1] : p.title;
+}
+
+function openPost(p) {
+  if (!state.read.includes(p.id)) state.read.push(p.id);
+  state.last = p.id;
+  saveState();
+  render();
+}
+
+function renderTabs() {
+  const tabs = $("tabs");
+  if (DATA.novels.length < 2) return;
+  tabs.hidden = false;
+  tabs.innerHTML = "";
+  DATA.novels.forEach((n, i) => {
+    const b = document.createElement("button");
+    b.textContent = n.name;
+    b.setAttribute("aria-selected", i === novelIdx);
+    b.onclick = () => { novelIdx = i; store.set("novel", i); loadState(); renderTabs(); render(); };
+    tabs.appendChild(b);
+  });
+}
+
+function link(p, cls, text) {
+  const a = document.createElement("a");
+  a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+  if (cls) a.className = cls;
+  if (text) a.textContent = text;
+  a.addEventListener("click", () => openPost(p));
+  return a;
+}
+
+function render() {
+  const novel = DATA.novels[novelIdx];
+  const posts = novel.posts;
+  document.title = novel.name + "｜目錄";
+  $("name").textContent = novel.name;
+
+  const meta = $("meta");
+  meta.innerHTML = "";
+  const first = posts[0], latest = posts[posts.length - 1];
+  meta.append(
+    Object.assign(document.createElement("span"), { textContent: `共 ${posts.length} 章` }),
+    Object.assign(document.createElement("span"), { textContent: latest ? `最新：${latest.date.slice(0, 10)}` : "" }),
+    Object.assign(document.createElement("a"), { textContent: "部落格分類頁 ↗", href: novel.url, target: "_blank", rel: "noopener" })
+  );
+  $("notice").hidden = !novel.notice;
+  $("notice").textContent = novel.notice ? "作者公告：" + novel.notice : "";
+
+  const readSet = new Set(state.read);
+  const readCount = posts.filter(p => readSet.has(p.id)).length;
+  $("bar").style.width = posts.length ? (readCount / posts.length * 100) + "%" : 0;
+  $("progressText").textContent = `已讀 ${readCount} / ${posts.length} 章`;
+
+  // 繼續閱讀
+  const lastIdx = posts.findIndex(p => p.id === state.last);
+  const resume = $("resume");
+  resume.innerHTML = "";
+  const label = document.createElement("p"); label.className = "label";
+  const title = document.createElement("p"); title.className = "next-title serif";
+  const actions = document.createElement("div"); actions.className = "actions";
+  if (lastIdx === -1) {
+    label.textContent = "還沒開始讀";
+    title.textContent = first ? `${first.no ?? 1}．${chapterLabel(first)}` : "";
+    if (first) actions.append(link(first, "btn primary", "從第一章開始 →"));
+  } else if (lastIdx < posts.length - 1) {
+    const last = posts[lastIdx], next = posts[lastIdx + 1];
+    label.textContent = `上次看到第 ${last.no ?? lastIdx + 1} 章「${chapterLabel(last)}」，下一章`;
+    title.textContent = `${next.no ?? lastIdx + 2}．${chapterLabel(next)}`;
+    actions.append(link(next, "btn primary", "讀下一章 →"), link(last, "btn", "回到上次那章"));
+  } else {
+    const last = posts[lastIdx];
+    label.textContent = "已經追到最新一章";
+    title.textContent = `${last.no ?? lastIdx + 1}．${chapterLabel(last)}`;
+    actions.append(link(last, "btn", "重看這章"));
+  }
+  resume.append(label, title, actions);
+
+  // 章節列表
+  $("order").textContent = newestFirst ? "排序：最新在前" : "排序：第一章在前";
+  const q = $("q").value.trim();
+  let shown = posts.map((p, i) => ({ p, i }));
+  if (q) shown = shown.filter(({ p }) => p.title.includes(q) || String(p.no) === q);
+  if (newestFirst) shown.reverse();
+
+  const list = $("list");
+  list.innerHTML = "";
+  if (!shown.length) {
+    list.innerHTML = '<li class="empty">找不到符合的章節</li>';
+  }
+  for (const { p, i } of shown) {
+    const li = document.createElement("li");
+    li.id = "c" + p.id;
+    if (readSet.has(p.id)) li.classList.add("read");
+    if (p.id === state.last) li.classList.add("current");
+    const a = link(p, "ch");
+    const no = Object.assign(document.createElement("span"), { className: "no", textContent: p.no ?? i + 1 });
+    const t = Object.assign(document.createElement("span"), { className: "t serif", textContent: chapterLabel(p) });
+    if (p.id === state.last) t.append(Object.assign(document.createElement("span"), { className: "tag", textContent: "上次" }));
+    const d = Object.assign(document.createElement("span"), { className: "d", textContent: p.date.slice(0, 10) });
+    a.append(no, t, d);
+    const tick = document.createElement("button");
+    tick.className = "tick";
+    tick.textContent = "✓";
+    tick.title = readSet.has(p.id) ? "標成未讀" : "標成已讀";
+    tick.onclick = () => {
+      state.read = readSet.has(p.id) ? state.read.filter(x => x !== p.id) : state.read.concat(p.id);
+      saveState(); render();
+    };
+    li.append(a, tick);
+    list.appendChild(li);
+  }
+
+  $("footer").textContent = `目錄更新於 ${DATA.updated}，每天會自動檢查有沒有新章節。`;
+}
+
+$("q").addEventListener("input", render);
+$("order").onclick = () => { newestFirst = !newestFirst; store.set("newestFirst", newestFirst); render(); };
+$("jump").onclick = () => {
+  const el = document.querySelector(".chapters li.current") || document.querySelector(".chapters li:not(.read)");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+// 從文章分頁切回來時，同步其他分頁的進度
+window.addEventListener("storage", () => { loadState(); render(); });
+
+loadState();
+renderTabs();
+render();
+</script>
+</body>
+</html>

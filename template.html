@@ -1,0 +1,306 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小說目錄</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@500;700&family=Noto+Sans+TC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f1e7;
+  --surface: #fffdf8;
+  --ink: #2b2620;
+  --muted: #857a6b;
+  --line: #e6dccb;
+  --accent: #a2482f;
+  --accent-ink: #fffaf3;
+  --accent-soft: #f3e1d6;
+  --read: #b3a895;
+  --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 8px 24px rgba(60, 40, 20, .06);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1b1916;
+    --surface: #24211d;
+    --ink: #ece4d6;
+    --muted: #a29785;
+    --line: #38332c;
+    --accent: #e08b6a;
+    --accent-ink: #1b1916;
+    --accent-soft: #3a2a22;
+    --read: #6f675b;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1b1916;
+  --surface: #24211d;
+  --ink: #ece4d6;
+  --muted: #a29785;
+  --line: #38332c;
+  --accent: #e08b6a;
+  --accent-ink: #1b1916;
+  --accent-soft: #3a2a22;
+  --read: #6f675b;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans TC", "Microsoft JhengHei", system-ui, sans-serif;
+  line-height: 1.6;
+}
+.wrap { max-width: 720px; margin: 0 auto; padding: 32px 16px 80px; }
+.serif { font-family: "Noto Serif TC", "PMingLiU", serif; }
+a { color: inherit; }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.tabs button {
+  border: 1px solid var(--line); background: var(--surface); color: var(--muted);
+  padding: 6px 14px; border-radius: 999px; font: inherit; cursor: pointer;
+}
+.tabs button[aria-selected="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+
+header h1 { font-size: clamp(28px, 6vw, 40px); margin: 0 0 6px; letter-spacing: .04em; }
+.meta { color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 4px 14px; }
+.meta a { color: var(--muted); }
+.notice {
+  margin-top: 14px; font-size: 14px; color: var(--muted);
+  border-left: 3px solid var(--accent); padding: 2px 0 2px 10px;
+}
+
+.progress { margin: 24px 0 8px; }
+.bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.bar > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+.progress small { color: var(--muted); font-size: 13px; }
+
+.resume {
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; margin: 16px 0 28px; box-shadow: var(--shadow);
+}
+.resume .label { font-size: 13px; color: var(--muted); margin: 0 0 4px; }
+.resume .next-title { font-size: 22px; margin: 0 0 16px; }
+.resume .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+  padding: 10px 18px; border-radius: 10px; font-weight: 500; font-size: 15px;
+  border: 1px solid var(--line); background: transparent; color: var(--ink); cursor: pointer; font-family: inherit;
+}
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn:hover { filter: brightness(1.05); }
+
+.toolbar { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+.toolbar input {
+  flex: 1 1 200px; min-width: 0; padding: 9px 12px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--surface); color: var(--ink); font: inherit;
+}
+.toolbar .btn { padding: 8px 12px; font-size: 14px; }
+
+ol.chapters { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+.chapters li { display: flex; align-items: center; border-bottom: 1px solid var(--line); }
+.chapters li.current { background: var(--accent-soft); }
+.chapters a.ch {
+  flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 14px;
+  padding: 13px 4px 13px 10px; text-decoration: none;
+}
+.chapters .no { width: 2.6em; flex: none; text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 14px; }
+.chapters .t { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
+.chapters .d { color: var(--muted); font-size: 12px; flex: none; }
+.chapters li.read .t { color: var(--read); }
+.chapters a.ch:hover .t { color: var(--accent); }
+.chapters .tick {
+  flex: none; width: 44px; height: 44px; border: 0; background: none; cursor: pointer;
+  color: var(--line); font-size: 18px; border-radius: 8px;
+}
+.chapters li.read .tick { color: var(--read); }
+.chapters .tick:hover { color: var(--accent); }
+.tag { font-size: 11px; color: var(--accent-ink); background: var(--accent); padding: 1px 6px; border-radius: 4px; margin-left: 6px; vertical-align: 2px; }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+footer { margin-top: 28px; color: var(--muted); font-size: 13px; }
+@media (max-width: 520px) {
+  .chapters .d { display: none; }
+  .wrap { padding-top: 20px; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <nav class="tabs" id="tabs" hidden></nav>
+  <header>
+    <h1 class="serif" id="name"></h1>
+    <div class="meta" id="meta"></div>
+    <div class="notice" id="notice" hidden></div>
+  </header>
+
+  <div class="progress">
+    <div class="bar"><i id="bar"></i></div>
+    <small id="progressText"></small>
+  </div>
+
+  <section class="resume" id="resume"></section>
+
+  <div class="toolbar">
+    <input id="q" type="search" placeholder="搜尋章節名稱或章數…">
+    <button class="btn" id="order"></button>
+    <button class="btn" id="jump">跳到進度</button>
+  </div>
+  <ol class="chapters" id="list"></ol>
+  <footer id="footer"></footer>
+</div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+
+const $ = id => document.getElementById(id);
+let novelIdx = Math.min(store.get("novel", 0), DATA.novels.length - 1);
+let newestFirst = store.get("newestFirst", false);
+let state;
+
+function key() { return "progress:" + DATA.novels[novelIdx].url; }
+function loadState() { state = store.get(key(), { read: [], last: null }); }
+function saveState() { store.set(key(), state); }
+
+function chapterLabel(p) {
+  // "離島‧離人‧風箏 90：兩人的過往" → "兩人的過往"
+  const m = p.title.match(/\d+\s*[：:]\s*(.+)$/);
+  return m ? m[1] : p.title;
+}
+
+function openPost(p) {
+  if (!state.read.includes(p.id)) state.read.push(p.id);
+  state.last = p.id;
+  saveState();
+  render();
+}
+
+function renderTabs() {
+  const tabs = $("tabs");
+  if (DATA.novels.length < 2) return;
+  tabs.hidden = false;
+  tabs.innerHTML = "";
+  DATA.novels.forEach((n, i) => {
+    const b = document.createElement("button");
+    b.textContent = n.name;
+    b.setAttribute("aria-selected", i === novelIdx);
+    b.onclick = () => { novelIdx = i; store.set("novel", i); loadState(); renderTabs(); render(); };
+    tabs.appendChild(b);
+  });
+}
+
+function link(p, cls, text) {
+  const a = document.createElement("a");
+  a.href = p.url; a.target = "_blank"; a.rel = "noopener";
+  if (cls) a.className = cls;
+  if (text) a.textContent = text;
+  a.addEventListener("click", () => openPost(p));
+  return a;
+}
+
+function render() {
+  const novel = DATA.novels[novelIdx];
+  const posts = novel.posts;
+  document.title = novel.name + "｜目錄";
+  $("name").textContent = novel.name;
+
+  const meta = $("meta");
+  meta.innerHTML = "";
+  const first = posts[0], latest = posts[posts.length - 1];
+  meta.append(
+    Object.assign(document.createElement("span"), { textContent: `共 ${posts.length} 章` }),
+    Object.assign(document.createElement("span"), { textContent: latest ? `最新：${latest.date.slice(0, 10)}` : "" }),
+    Object.assign(document.createElement("a"), { textContent: "部落格分類頁 ↗", href: novel.url, target: "_blank", rel: "noopener" })
+  );
+  $("notice").hidden = !novel.notice;
+  $("notice").textContent = novel.notice ? "作者公告：" + novel.notice : "";
+
+  const readSet = new Set(state.read);
+  const readCount = posts.filter(p => readSet.has(p.id)).length;
+  $("bar").style.width = posts.length ? (readCount / posts.length * 100) + "%" : 0;
+  $("progressText").textContent = `已讀 ${readCount} / ${posts.length} 章`;
+
+  // 繼續閱讀
+  const lastIdx = posts.findIndex(p => p.id === state.last);
+  const resume = $("resume");
+  resume.innerHTML = "";
+  const label = document.createElement("p"); label.className = "label";
+  const title = document.createElement("p"); title.className = "next-title serif";
+  const actions = document.createElement("div"); actions.className = "actions";
+  if (lastIdx === -1) {
+    label.textContent = "還沒開始讀";
+    title.textContent = first ? `${first.no ?? 1}．${chapterLabel(first)}` : "";
+    if (first) actions.append(link(first, "btn primary", "從第一章開始 →"));
+  } else if (lastIdx < posts.length - 1) {
+    const last = posts[lastIdx], next = posts[lastIdx + 1];
+    label.textContent = `上次看到第 ${last.no ?? lastIdx + 1} 章「${chapterLabel(last)}」，下一章`;
+    title.textContent = `${next.no ?? lastIdx + 2}．${chapterLabel(next)}`;
+    actions.append(link(next, "btn primary", "讀下一章 →"), link(last, "btn", "回到上次那章"));
+  } else {
+    const last = posts[lastIdx];
+    label.textContent = "已經追到最新一章";
+    title.textContent = `${last.no ?? lastIdx + 1}．${chapterLabel(last)}`;
+    actions.append(link(last, "btn", "重看這章"));
+  }
+  resume.append(label, title, actions);
+
+  // 章節列表
+  $("order").textContent = newestFirst ? "排序：最新在前" : "排序：第一章在前";
+  const q = $("q").value.trim();
+  let shown = posts.map((p, i) => ({ p, i }));
+  if (q) shown = shown.filter(({ p }) => p.title.includes(q) || String(p.no) === q);
+  if (newestFirst) shown.reverse();
+
+  const list = $("list");
+  list.innerHTML = "";
+  if (!shown.length) {
+    list.innerHTML = '<li class="empty">找不到符合的章節</li>';
+  }
+  for (const { p, i } of shown) {
+    const li = document.createElement("li");
+    li.id = "c" + p.id;
+    if (readSet.has(p.id)) li.classList.add("read");
+    if (p.id === state.last) li.classList.add("current");
+    const a = link(p, "ch");
+    const no = Object.assign(document.createElement("span"), { className: "no", textContent: p.no ?? i + 1 });
+    const t = Object.assign(document.createElement("span"), { className: "t serif", textContent: chapterLabel(p) });
+    if (p.id === state.last) t.append(Object.assign(document.createElement("span"), { className: "tag", textContent: "上次" }));
+    const d = Object.assign(document.createElement("span"), { className: "d", textContent: p.date.slice(0, 10) });
+    a.append(no, t, d);
+    const tick = document.createElement("button");
+    tick.className = "tick";
+    tick.textContent = "✓";
+    tick.title = readSet.has(p.id) ? "標成未讀" : "標成已讀";
+    tick.onclick = () => {
+      state.read = readSet.has(p.id) ? state.read.filter(x => x !== p.id) : state.read.concat(p.id);
+      saveState(); render();
+    };
+    li.append(a, tick);
+    list.appendChild(li);
+  }
+
+  $("footer").textContent = `目錄更新於 ${DATA.updated}，每天會自動檢查有沒有新章節。`;
+}
+
+$("q").addEventListener("input", render);
+$("order").onclick = () => { newestFirst = !newestFirst; store.set("newestFirst", newestFirst); render(); };
+$("jump").onclick = () => {
+  const el = document.querySelector(".chapters li.current") || document.querySelector(".chapters li:not(.read)");
+  if (el) el.scrollIntoView({ behavior: "smooth", block: "center" });
+};
+// 從文章分頁切回來時，同步其他分頁的進度
+window.addEventListener("storage", () => { loadState(); render(); });
+
+loadState();
+renderTabs();
+render();
+</script>
+</body>
+</html>
